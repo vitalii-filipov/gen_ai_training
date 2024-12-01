@@ -36,7 +36,18 @@ public class ChatBotService {
         return chatCompletionService
                 .getChatMessageContentsAsync(chatHistory, semanticKernel, invocationContext)
                 .doOnNext(this::updateHistory)
-                .map(ChatBotService::convertMessagesToString);
+                .map(ChatBotService::convertMessagesToString)
+                .doOnNext(response -> System.out.println("""
+                        Input prompt: ```
+                        ${prompt}
+                        ```
+                        Model response: ```
+                        ${response}
+                        ```
+                        """
+                        .replace("${prompt}", prompt)
+                        .replace("${response}", response)
+                ));
     }
 
     private void updateHistory(List<ChatMessageContent<?>> chatMessageList) {
