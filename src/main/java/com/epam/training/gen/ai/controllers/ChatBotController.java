@@ -6,21 +6,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.microsoft.semantickernel.Kernel;
-import com.microsoft.semantickernel.orchestration.FunctionResult;
+import com.epam.training.gen.ai.services.ChatBotService;
+
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
 public class ChatBotController {
 
     @Autowired
-    private Kernel semanticKernel;
+    private ChatBotService chatBotService;
 
-    @GetMapping("/chat-response")
-    public PromptResponse getChatResponse(@RequestParam String prompt) {
+    @GetMapping("/chat")
+    public Mono<PromptResponse> getChatResponse(@RequestParam String prompt,
+            @RequestParam(defaultValue = "false") boolean newSession) throws Exception {
 
-        FunctionResult<String> response = semanticKernel.invokePromptAsync(prompt)
-                .withResultType(String.class).block();
-        return new PromptResponse(prompt, response.getResult());
+        return chatBotService.getResponse(prompt, newSession).map(response -> new PromptResponse(prompt, response));
     }
 }
