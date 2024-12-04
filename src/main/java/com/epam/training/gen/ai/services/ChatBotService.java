@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class ChatBotService {
+
+    private static final Logger logger = LoggerFactory.getLogger(ChatBotService.class);
 
     private static final String SYSTEM_MESSAGE = "You are a helpful assistant.";
 
@@ -37,7 +41,7 @@ public class ChatBotService {
                 .getChatMessageContentsAsync(chatHistory, semanticKernel, invocationContext)
                 .doOnNext(this::updateHistory)
                 .map(ChatBotService::convertMessagesToString)
-                .doOnNext(response -> System.out.println("""
+                .doOnNext(response -> logger.info("""
                         Input prompt: ```
                         ${prompt}
                         ```
@@ -46,8 +50,7 @@ public class ChatBotService {
                         ```
                         """
                         .replace("${prompt}", prompt)
-                        .replace("${response}", response)
-                ));
+                        .replace("${response}", response)));
     }
 
     private void updateHistory(List<ChatMessageContent<?>> chatMessageList) {
@@ -56,7 +59,9 @@ public class ChatBotService {
     }
 
     private static String convertMessagesToString(List<ChatMessageContent<?>> chatMessageList) {
-        return chatMessageList.stream().map(content -> content.getContent()).collect(Collectors.joining());
+        return chatMessageList.stream()
+                .filter(content -> content.getContent() != null)
+                .map(content -> content.getContent()).collect(Collectors.joining("\n"));
     }
 
     private ChatHistory getChatHistory(boolean newHistory) {

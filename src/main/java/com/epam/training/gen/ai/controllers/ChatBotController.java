@@ -1,9 +1,10 @@
 package com.epam.training.gen.ai.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.training.gen.ai.services.ChatBotService;
@@ -17,10 +18,10 @@ public class ChatBotController {
     @Autowired
     private ChatBotService chatBotService;
 
-    @GetMapping("/chat")
-    public Mono<PromptResponse> getChatResponse(@RequestParam String prompt,
-            @RequestParam(defaultValue = "false") boolean newSession) throws Exception {
+    @PostMapping(path = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<PromptResponse> getChatResponse(@RequestBody PromptRequest request) throws Exception {
 
-        return chatBotService.getResponse(prompt, newSession).map(response -> new PromptResponse(prompt, response));
+        return chatBotService.getResponse(request.prompt(), request.newSession())
+                .map(response -> new PromptResponse(request.prompt(), response));
     }
 }
