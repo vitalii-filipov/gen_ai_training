@@ -86,3 +86,29 @@ The response will contain a response from the function with model's response to 
         "input": "Sure, here is the one: \"Give example of popular 5 programming languages. Be concise\"",
         "output": "Give example of popular 5 programming languages. Be concise\nSure! Here are 5 popular programming languages:\n\n1. Python\n2. Java\n3. JavaScript\n4. C++\n5. Ruby"
     }
+
+## With BuyTrainTicket plugin
+
+There is a plugin registered that is called when user tries to buy a ticket to a train.
+
+Here is the request to initiate pluggin calling flow:
+
+    curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"prompt":"Hello, I'\''d like to buy a train ticket", "newSession":true}'
+
+After that the LLM tries to ask user which train should be used with this response:
+
+    {
+        "input":"Hello, I'd like to buy a train ticket",
+        "output":"TrainSchedule[availableTrains=[TrainInfo[trainId=1, trainName=Lviv - Kyiv, routeCities=[Lviv, Zhytomyr, Kyiv]], TrainInfo[trainId=2, trainName=Kyiv - Lviv, routeCities=[Kyiv, Zhytomyr, Lviv]]]]\nSure! Here are the available trains:\n\n1. Train: Lviv - Kyiv\n   - Route: Lviv, Zhytomyr, Kyiv\n\n\nPlease let me know which train you would like to book a ticket for."
+    }
+
+When this call is made then the function in the plugin is called:
+
+    curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"prompt":"Hello, I'\''d like to book train 1", "newSession":false}'
+
+The response will contain a response from the function with model's response to the function result:
+
+    {
+        "input":"Hello, I'd like to book train 1",
+        "output":"TicketInfo[ticketId=4, trainId=1]\nGreat! I have successfully booked a ticket for you on Train 1. Your ticket ID is 4.\n\nEnjoy your journey!"
+    }
