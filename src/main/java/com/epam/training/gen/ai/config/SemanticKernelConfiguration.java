@@ -1,5 +1,6 @@
 package com.epam.training.gen.ai.config;
 import com.azure.ai.openai.OpenAIAsyncClient;
+import com.epam.training.gen.ai.plugins.BuyTrainTicketPlugin;
 import com.epam.training.gen.ai.plugins.SimplePlugin;
 import com.microsoft.semantickernel.Kernel;
 import com.microsoft.semantickernel.aiservices.openai.chatcompletion.OpenAIChatCompletion;
@@ -66,6 +67,7 @@ public class SemanticKernelConfiguration {
         return Kernel.builder()
                 .withAIService(ChatCompletionService.class, chatCompletionService)
                 .withPlugin(kernelPlugin)
+                .withPlugin(KernelPluginFactory.createFromObject(new BuyTrainTicketPlugin(), "BuyTrainTicketPlugin"))
                 .build();
     }
 
