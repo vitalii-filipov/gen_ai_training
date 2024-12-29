@@ -112,3 +112,36 @@ The response will contain a response from the function with model's response to 
         "input":"Hello, I'd like to book train 1",
         "output":"TicketInfo[ticketId=4, trainId=1]\nGreat! I have successfully booked a ticket for you on Train 1. Your ticket ID is 4.\n\nEnjoy your journey!"
     }
+
+## With other models
+
+Here are some examples of execution of the same request to different models. As you can see the response is a bit different
+
+### Mixtral-8x7B-Instruct-v0.1
+
+NOTE: for Mixtral tool behavior must be disabled since it does not support it
+
+Call:
+
+    curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"prompt":"Hello, Could you provide me an example for two car makes? Provide only the answer without any additional details", "newSession":true}'
+
+Response: 
+
+    {
+        "input":"Hello, Could you provide me an example for two car makes? Provide only the answer without any additional details",
+        "output":" Sure, here are two examples of car makes:\n\n1. Toyota\n2. Ford"
+    }
+
+### gpt-35-turbo
+
+Call:
+
+    curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"prompt":"Hello, Could you provide me an example for two car makes? Provide only the answer without any additional details", "newSession":true}'
+
+Response: 
+
+    {
+        "input":"Hello, Could you provide me an example for two car makes? Provide only the answer without any additional details",
+        "output":"Sure! Ford and Toyota."
+    }
+
