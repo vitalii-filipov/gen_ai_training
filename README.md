@@ -145,3 +145,94 @@ Response:
         "output":"Sure! Ford and Toyota."
     }
 
+## Embeddings
+
+There are 3 endpoints:
+* /api/embedding/array - calls embeddings model and displays generated for the provided text
+* /api/embedding/store - the same as above endpoint but also stores embedding in vector DB
+* /api/embedding/search - returns similar vectors for provided text
+
+### Test example 
+
+#### Prerequisites
+
+* Run Qdrant database locally. Its dashboard will be available at http://localhost:6333/dashboard
+
+        docker compose up -d
+
+* Start the application
+
+#### Display vectors that will be stored
+
+Requests:
+
+    curl -X POST "http://localhost:8080/api/embedding/array" -H "Content-Type: application/json" -d '{"prompt":"red"}'
+
+    curl -X POST "http://localhost:8080/api/embedding/array" -H "Content-Type: application/json" -d '{"prompt":"green"}'
+
+    curl -X POST "http://localhost:8080/api/embedding/array" -H "Content-Type: application/json" -d '{"prompt":"blue"}'
+
+    curl -X POST "http://localhost:8080/api/embedding/array" -H "Content-Type: application/json" -d '{"prompt":"pink"}'
+
+    curl -X POST "http://localhost:8080/api/embedding/array" -H "Content-Type: application/json" -d '{"prompt":"rose"}'
+
+Responses:
+
+    [[-0.7053286,-0.3486379,-0.09023848,0.61059004]]
+
+    [[0.09841386,-0.017335087,0.96524084,0.24150404]]
+
+    [[-0.04438872,-0.65070075,-0.51649725,0.5548411]]
+
+    [[0.35085934,-0.489141,-0.7023252,-0.37997127]]
+
+    [[-0.47275192,-0.720494,0.04315258,0.5055016]]
+
+#### Store vectors in the local DB
+
+Requests:
+
+    curl -X POST "http://localhost:8080/api/embedding/store" -H "Content-Type: application/json" -d '{"prompt":"red"}'
+    curl -X POST "http://localhost:8080/api/embedding/store" -H "Content-Type: application/json" -d '{"prompt":"green"}'
+    curl -X POST "http://localhost:8080/api/embedding/store" -H "Content-Type: application/json" -d '{"prompt":"blue"}'
+    curl -X POST "http://localhost:8080/api/embedding/store" -H "Content-Type: application/json" -d '{"prompt":"pink"}'
+
+#### Make test calls to search for similar vectors
+
+Request for existing data:
+
+    curl -X POST "http://localhost:8080/api/embedding/search" -H "Content-Type: application/json" -d '{"prompt":"red"}' | jq
+
+Response for existing data:
+
+    [
+        {
+            "id": "bda9643a-c660-3722-a28f-238714274da4",
+            "score": 1,
+            "originalText": "red"
+        },
+        {
+            "id": "48d62159-03df-3562-b8e5-2e8891380c8f",
+            "score": 0.64355594,
+            "originalText": "blue"
+        }
+    ]
+
+Request for **non-existing** data:
+
+    curl -X POST "http://localhost:8080/api/embedding/search" -H "Content-Type: application/json" -d '{"prompt":"rose"}' | jq
+
+Response for **non-existing** data:
+
+    [
+        {
+            "id": "bda9643a-c660-3722-a28f-238714274da4",
+            "score": 0.88939714,
+            "originalText": "red"
+        },
+        {
+            "id": "48d62159-03df-3562-b8e5-2e8891380c8f",
+            "score": 0.74799573,
+            "originalText": "blue"
+        }
+    ]
