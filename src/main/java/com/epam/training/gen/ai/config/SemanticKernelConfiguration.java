@@ -91,7 +91,7 @@ public class SemanticKernelConfiguration {
     public InvocationContext invocationContext(@Value("${tool-call-enabled}") boolean toolCallEnabled) {
         Builder contextBuilder = InvocationContext.builder()
                 .withPromptExecutionSettings(PromptExecutionSettings.builder()
-                        .withTemperature(1.0)
+                        .withTemperature(0.0)
                         .build());
         if (toolCallEnabled) {
             contextBuilder

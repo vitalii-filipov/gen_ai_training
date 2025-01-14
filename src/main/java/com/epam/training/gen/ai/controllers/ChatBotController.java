@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.epam.training.gen.ai.models.ScoreResult;
 import com.epam.training.gen.ai.services.ChatBotService;
 import com.epam.training.gen.ai.services.EmbeddingService;
+import com.epam.training.gen.ai.services.RagService;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -24,12 +25,22 @@ public class ChatBotController {
     private ChatBotService chatBotService;
 
     @Autowired
+    private RagService ragService;
+
+    @Autowired
     private EmbeddingService embeddingService;
 
     @PostMapping(path = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<PromptResponse> getChatResponse(@RequestBody PromptRequest request) throws Exception {
 
         return chatBotService.getResponse(request.prompt(), request.newSession())
+                .map(response -> new PromptResponse(request.prompt(), response));
+    }
+
+    @PostMapping(path = "/rag/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<PromptResponse> getRagChatResponse(@RequestBody PromptRequest request) throws Exception {
+
+        return ragService.getResponse(request.prompt(), request.newSession())
                 .map(response -> new PromptResponse(request.prompt(), response));
     }
 
