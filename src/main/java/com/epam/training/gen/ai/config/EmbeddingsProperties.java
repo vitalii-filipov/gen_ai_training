@@ -19,4 +19,6 @@ public class EmbeddingsProperties {
     private int vectorSize;
 
     private int searchLimit;
+
+    private String initDocsPath;
 }

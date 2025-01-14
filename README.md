@@ -148,9 +148,9 @@ Response:
 ## Embeddings
 
 There are 3 endpoints:
-* /api/embedding/array - calls embeddings model and displays generated for the provided text
-* /api/embedding/store - the same as above endpoint but also stores embedding in vector DB
-* /api/embedding/search - returns similar vectors for provided text
+* `/api/embedding/array` - calls embeddings model and displays generated for the provided text
+* `/api/embedding/store` - the same as above endpoint but also stores embedding in vector DB
+* `/api/embedding/search` - returns similar vectors for provided text
 
 ### Test example 
 
@@ -236,3 +236,63 @@ Response for **non-existing** data:
             "originalText": "blue"
         }
     ]
+
+## RAG queries
+
+`/api/rag/chat` endpoint is used to call RagService
+Two documents are uploaded during the application start:
+1. Train time table
+2. Pancake recipe
+
+Also, system prompt asks to respond with **I do not know** when query cannot be answered from provided context
+
+
+### Test example 
+
+#### Prerequisites
+
+* Run Qdrant database locally. Its dashboard will be available at http://localhost:6333/dashboard
+
+        docker compose up -d
+
+* Start the application
+
+#### Get train schedule information
+
+Request:
+
+    curl -X POST "http://localhost:8080/api/rag/chat" -H "Content-Type: application/json" -d '{"prompt":"I would like to know Chernivtsi Odes
+a schedule"}'
+    curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"prompt":"I would like to know how to cook pancakes"}'
+
+Response:
+    {
+        "input":"I would like to know Chernivtsi Odesa schedule",
+        "output":"Train Number: 136\nRoute: Chernivtsi Odesa\nPeriodicity: year-round daily\nStation_name: Pidzamche\nArrival time: 21:14\nDeparture time: 21:16\nArrival to dest. station time: 08:31"
+    }
+
+#### Get pancake recipe
+
+Request:
+
+    curl -X POST "http://localhost:8080/api/rag/chat" -H "Content-Type: application/json" -d '{"prompt":"I would like to know how to cook pancakes"}'
+
+Response:
+    {
+        "input":"I would like to know how to cook pancakes",
+        "output":"Sure! Here's a simple recipe for making pancakes:\n\nIngredients:\n- 1 cup all-purpose flour\n- 2 tablespoons sugar\n- 1 teaspoon baking powder\n- 1/2 teaspoon baking soda\n- 1/4 teaspoon salt\n- 3/4 cup milk\n- 1/4 cup plain yogurt or buttermilk\n- 1 large egg\n- 2 tablespoons melted butter or vegetable oil\n- Optional: vanilla extract, cinnamon, or other flavorings\n\nInstructions:\n1. In a large bowl, whisk together the flour, sugar, baking powder, baking soda, and salt.\n2. In a separate bowl, whisk together the milk, yogurt or buttermilk, egg, and melted butter or oil. If desired, add a splash of vanilla extract or other flavorings.\n3. Pour the wet ingredients into the dry ingredients and gently stir until just combined. It's okay if there are a few lumps.\n4. Heat a non-stick skillet or griddle over medium heat. You can lightly grease it with butter or cooking spray if needed.\n5. Pour about 1/4 cup of batter onto the skillet for each pancake. Cook until bubbles form on the surface, then flip and cook for another "
+    }
+
+#### Ask a question not relevant to context
+
+Request:
+
+    curl -X POST "http://localhost:8080/api/rag/chat" -H "Content-Type: application/json" -d '{"prompt":"I would like to know how to drive a 
+car"}'
+
+Response:
+
+    {
+        "input":"I would like to know how to drive a car",
+        "output":"I do not know."
+    }
